@@ -2,10 +2,13 @@ const express = require("express")
 const {connectMongoDb} = require("./connection")
 const app = express();
 const PORT = 8000;
+const cookieParser = require("cookie-parser")
 const staticRoute = require("./routes/staticRouter")
 const router = require("./routes/url")
+const userRoute = require("./routes/users")
 const URL = require("./models/url")
 const path = require("path");
+const {restrictToLoggedInUserOnly, checkAuth} = require("./middlewares/auth");
 
 connectMongoDb("mongodb://127.0.0.1:27017/short-url").then(()=>{
     console.log("Mongo Db connected Successfully")
@@ -14,9 +17,13 @@ app.set("view engine", "ejs")
 app.set("views", path.resolve("./views"))
 app.use(express.urlencoded({extended: false}))
 app.use(express.json())
+app.use(cookieParser())
 
-app.use("/url", router)
-app.use("/", staticRoute)
+
+
+app.use("/url", restrictToLoggedInUserOnly, router)
+app.use("/user", userRoute)
+app.use("/",checkAuth, staticRoute)
 
 app.get("/test", async (req, res)=>{
     const allUrls = await URL.find({})
