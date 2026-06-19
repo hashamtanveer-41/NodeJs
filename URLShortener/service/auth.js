@@ -1,9 +1,13 @@
 const jwt = require("jsonwebtoken")
 const secret = "Adfa42341kasd-!@@!#"
-function setUser ( user){
+
+
+function setUser (user){
+    console.log(user)
     return jwt.sign({
         id: user._id,
-        email: user.email
+        email: user.email,
+        roles: user.roles,
     }, secret)
 }
 
