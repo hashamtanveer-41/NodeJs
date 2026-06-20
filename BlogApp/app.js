@@ -1,7 +1,8 @@
+require("dotenv").config()
 const express = require("express")
 const path = require("path");
 const app = express();
-const PORT = 8000;
+const PORT = process.env.PORT ||8000;
 const mongoose = require("mongoose")
 const userRoute = require("./routes/user")
 const blogRoute = require("./routes/blog")
@@ -16,7 +17,7 @@ app.use(express.static(path.resolve("./public")))
 const Blog = require("./models/blog")
 
 app.use(checkForAuthenticationCookie("token"))
-mongoose.connect('mongodb://127.0.0.1:27017/blogify').then((e)=>console.log("MongoDb connected"))
+mongoose.connect(process.env.MONGO_URL).then((e)=>console.log("MongoDb connected"))
 
 app.get("/", async (req, res)=>{
     const allBlogs = await Blog.find({});
