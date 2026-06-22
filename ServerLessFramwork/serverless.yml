@@ -1,0 +1,15 @@
+service: learn-serverless-api
+frameworkVersion: "3"
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  region: ap-south-1
+
+functions:
+  learnHello:
+    handler: hello.handler,
+    events:
+      -httpApi:
+        path: /hello
+        method: GET
