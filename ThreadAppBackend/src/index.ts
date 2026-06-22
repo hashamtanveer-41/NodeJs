@@ -1,10 +1,8 @@
 // @ts-ignore
 import express from "express";
 // @ts-ignore
-import {ApolloServer} from "@apollo/server";
-// @ts-ignore
 import {expressMiddleware} from "@as-integrations/express5";
-import {prismaClient} from "./lib/db.js";
+import createApolloGraphqlServer from "./graphql/index.js";
 
 async function init(){
 
@@ -13,46 +11,11 @@ async function init(){
 
     app.use(express.json());
 
-    const gqlServer = new ApolloServer({
-        typeDefs: `
-            type Query{
-                hello: String
-                say(name: String): String
-            }
-            
-            type Mutation {
-                createUser(firstName: String!, lastName: String!, email: String!, password: String!): Boolean
-            }
-        `,
-        resolvers: {
-                Query: {
-                    hello: ()=> `Hello there i am graphql server`,
-                    say: (_, {name}: {name: String}) => `Hello ${name}.`
-                },
-                Mutation: {
-                    createUser: async(_, {firstName, lastName, email, password}: {firstName: string; lastName: string; email: string; password: string}) => {
-                        await prismaClient.user.create({
-                            data: {
-                                email,
-                                firstName,
-                                lastName,
-                                password,
-                                salt: "random_salt"
-                            }
-                        });
-                        return true;
-                    }
-                }
-        },
-    })
-
-    await gqlServer.start();
-
     app.get("/", (req, res)=>{
         res.json({message: "Server is up and running" })
     })
 
-    app.use("/graphql", expressMiddleware(gqlServer));
+    app.use("/graphql", expressMiddleware(await createApolloGraphqlServer()));
     app.listen(PORT, ()=> console.log("Server is started on "+PORT))
 }
 
