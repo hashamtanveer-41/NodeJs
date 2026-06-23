@@ -7,6 +7,14 @@ const queries = {
             password:payload.password
         })
         return token;
+    },
+    getCurrentLoggedInUser: async (_:any, parameters:any, context:any)=>{
+        if (context && context.user) {
+            const userId = context.user.id;
+            return UserService.getUserById(userId);
+
+        }
+        throw new Error("LAMO get rekit");
     }
 };
 
